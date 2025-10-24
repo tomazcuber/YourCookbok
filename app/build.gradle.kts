@@ -62,6 +62,7 @@ dependencies {
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
     implementation(libs.retrofit)
     implementation(libs.kotlinx.serialization.json)
@@ -70,4 +71,6 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
     testImplementation(libs.room.testing)
+
+    implementation(libs.kotlinx.coroutines.android)
 }
