@@ -1,4 +1,4 @@
-package com.tomazcuber.yourcookbok.ui.theme
+package com.tomazcuber.yourcookbok.presentation.theme
 
 import android.app.Activity
 import android.os.Build
