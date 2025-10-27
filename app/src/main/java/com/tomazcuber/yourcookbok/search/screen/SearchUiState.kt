@@ -1,4 +1,4 @@
-package com.tomazcuber.yourcookbok.search
+package com.tomazcuber.yourcookbok.search.screen
 
 data class SearchUiState(
     val searchQuery: String = "",

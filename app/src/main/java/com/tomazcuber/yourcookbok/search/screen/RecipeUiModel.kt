@@ -1,4 +1,4 @@
-package com.tomazcuber.yourcookbok.search
+package com.tomazcuber.yourcookbok.search.screen
 
 import com.tomazcuber.yourcookbok.domain.model.Recipe
 
