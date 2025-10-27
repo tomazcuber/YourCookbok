@@ -94,4 +94,5 @@ dependencies {
     testImplementation(libs.room.testing)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.navigation.compose)
 }
