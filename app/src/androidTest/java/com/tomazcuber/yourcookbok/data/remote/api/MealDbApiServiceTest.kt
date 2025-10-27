@@ -10,7 +10,9 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import retrofit2.HttpException
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.isNull
@@ -77,6 +79,45 @@ class MealDbApiServiceTest {
         val request = mockWebServer.takeRequest()
         expectThat(request.path).isEqualTo("/search.php?s=NonExistentQuery")
         expectThat(response.meals).isNull()
+    }
+
+    @Test
+    fun lookupRecipeById_withValidId_returnsSuccessResponse() = runTest {
+        // Given
+        val mockResponse = MockResponse()
+            .setResponseCode(200)
+            .setBody(successResponse)
+        mockWebServer.enqueue(mockResponse)
+
+        // When
+        val response = apiService.lookupRecipeById("52771")
+
+        // Then
+        val request = mockWebServer.takeRequest()
+        expectThat(request.path).isEqualTo("/lookup.php?i=52771")
+
+        val recipe = response.meals?.first()
+        expectThat(recipe).isNotNull()
+        expectThat(recipe) {
+            get { this?.id ?: "" }.isEqualTo("52771")
+            get { this?.name ?: "" }.isEqualTo("Spicy Arrabiata Penne")
+        }
+    }
+
+    @Test
+    fun searchRecipes_whenApiReturnsError_throwsHttpException() = runTest {
+        // Given
+        val mockResponse = MockResponse()
+            .setResponseCode(404)
+            .setBody("Not Found")
+        mockWebServer.enqueue(mockResponse)
+
+        // When / Then
+        val exception = expectThrows<HttpException> {
+            apiService.searchRecipes("any")
+        }.subject
+
+        expectThat(exception.code()).isEqualTo(404)
     }
 
     private val successResponse = """
