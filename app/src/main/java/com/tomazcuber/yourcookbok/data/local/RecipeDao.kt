@@ -19,6 +19,9 @@ interface RecipeDao {
     @Query("SELECT COUNT(*) FROM saved_recipes WHERE id = :recipeId")
     fun isRecipeSaved(recipeId: String): Flow<Int>
 
+    @Query("SELECT * FROM saved_recipes WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
+    suspend fun searchSavedRecipes(query: String): List<RecipeEntity>
+
     @Delete
     suspend fun delete(recipe: RecipeEntity)
 }
