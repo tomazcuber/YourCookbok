@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tomazcuber.yourcookbok.domain.model.Recipe
@@ -55,11 +56,54 @@ fun SavedRecipesScreen(
             items(recipes) { recipe ->
                 RecipeItemCard(
                     recipe = recipe,
-                    isFavorite = true, // All recipes on this screen are favorites
+                    isFavorite = true,
                     onClick = { onRecipeClick(recipe) },
                     onFavoriteClick = { onFavoriteClick(recipe) }
                 )
             }
         }
+    }
+}
+
+// --- Previews ---
+
+private fun getPreviewRecipes(): List<Recipe> {
+    return listOf(
+        Recipe(
+            id = "1",
+            name = "Spicy Arrabiata Penne",
+            imageUrl = "https://www.themealdb.com/images/media/meals/ustsqw1468250014.jpg",
+            instructions = "", ingredients = emptyList(), category = "", area = ""
+        ),
+        Recipe(
+            id = "2",
+            name = "Chicken and Mushroom Pie",
+            imageUrl = "https://www.themealdb.com/images/media/meals/sytuqu1511553755.jpg",
+            instructions = "", ingredients = emptyList(), category = "", area = ""
+        )
+    )
+}
+
+@Preview(name = "Empty State", showBackground = true)
+@Composable
+fun SavedRecipesScreenEmptyPreview() {
+    com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme {
+        SavedRecipesScreen(
+            recipes = emptyList(),
+            onRecipeClick = {},
+            onFavoriteClick = {}
+        )
+    }
+}
+
+@Preview(name = "With Content", showBackground = true)
+@Composable
+fun SavedRecipesScreenWithContentPreview() {
+    com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme {
+        SavedRecipesScreen(
+            recipes = getPreviewRecipes(),
+            onRecipeClick = {},
+            onFavoriteClick = {}
+        )
     }
 }
