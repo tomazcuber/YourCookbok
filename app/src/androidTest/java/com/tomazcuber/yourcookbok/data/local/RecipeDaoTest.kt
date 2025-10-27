@@ -104,4 +104,64 @@ class RecipeDaoTest {
         // Then
         expectThat(allRecipes).doesNotContain(recipe)
     }
+
+    @Test
+    fun searchSavedRecipes_withMatchingQuery_returnsMatchingRecipes() = runTest {
+        // Given
+        val recipe1 = RecipeEntity("1", "Chicken Soup", "", "", emptyList(), "", "")
+        val recipe2 = RecipeEntity("2", "Beef Stew", "", "", emptyList(), "", "")
+        dao.saveRecipe(recipe1)
+        dao.saveRecipe(recipe2)
+
+        // When
+        val results = dao.searchSavedRecipes("Soup")
+
+        // Then
+        expectThat(results).contains(recipe1)
+        expectThat(results).doesNotContain(recipe2)
+    }
+
+    @Test
+    fun searchSavedRecipes_withNonMatchingQuery_returnsEmptyList() = runTest {
+        // Given
+        val recipe1 = RecipeEntity("1", "Chicken Soup", "", "", emptyList(), "", "")
+        dao.saveRecipe(recipe1)
+
+        // When
+        val results = dao.searchSavedRecipes("Pizza")
+
+        // Then
+        expectThat(results).isEqualTo(emptyList())
+    }
+
+    @Test
+    fun searchSavedRecipes_isCaseInsensitive() = runTest {
+        // Given
+        val recipe1 = RecipeEntity("1", "Chicken Soup", "", "", emptyList(), "", "")
+        dao.saveRecipe(recipe1)
+
+        // When
+        val results = dao.searchSavedRecipes("chicken") // Lowercase query
+
+        // Then
+        expectThat(results).contains(recipe1)
+    }
+
+    @Test
+    fun searchSavedRecipes_withQueryMatchingMultiple_returnsAllMatches() = runTest {
+        // Given
+        val recipe1 = RecipeEntity("1", "Chicken Soup", "", "", emptyList(), "", "")
+        val recipe2 = RecipeEntity("2", "Spicy Chicken Wings", "", "", emptyList(), "", "")
+        val recipe3 = RecipeEntity("3", "Beef Stew", "", "", emptyList(), "", "")
+        dao.saveRecipe(recipe1)
+        dao.saveRecipe(recipe2)
+        dao.saveRecipe(recipe3)
+
+        // When
+        val results = dao.searchSavedRecipes("Chicken")
+
+        // Then
+        expectThat(results).contains(recipe1, recipe2)
+        expectThat(results).doesNotContain(recipe3)
+    }
 }
