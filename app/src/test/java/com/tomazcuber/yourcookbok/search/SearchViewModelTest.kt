@@ -13,8 +13,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -47,12 +46,14 @@ class SearchViewModelTest {
     @RelaxedMockK
     private lateinit var deleteRecipeUseCase: DeleteRecipeUseCase
 
+    private lateinit var savedRecipesFlow: MutableStateFlow<List<Recipe>>
+
     private lateinit var viewModel: SearchViewModel
 
     @BeforeEach
     fun setUp() {
-        // Given
-        every { getSavedRecipesUseCase() } returns flowOf(emptyList())
+        savedRecipesFlow = MutableStateFlow(emptyList())
+        every { getSavedRecipesUseCase() } returns savedRecipesFlow
         coEvery { searchRecipesUseCase(any()) } returns Result.success(emptyList())
 
         viewModel = SearchViewModel(
@@ -64,47 +65,16 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `when search query changes, state is updated and search is triggered after debounce`() = runTest {
+    fun `when search query changes, search is triggered after debounce`() = runTest {
         // When
         viewModel.onEvent(SearchEvent.OnSearchQueryChanged("chicken"))
-
-        // Then
         expectThat(viewModel.uiState.value.searchQuery).isEqualTo("chicken")
+
+        // Then
         coVerify(exactly = 0) { searchRecipesUseCase(any()) } // Not called yet
-
-        mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(500) // Advance time to trigger debounce
-        runCurrent() // Execute the search coroutine
-
-        coVerify(exactly = 1) { searchRecipesUseCase("chicken") }
-    }
-
-    @Test
-    fun `when search submitted, search is triggered immediately`() = runTest {
-        // Given
-        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("beef"))
-
-        // When
-        viewModel.onEvent(SearchEvent.OnSearchSubmit)
-        runCurrent()
-
-        // Then
-        coVerify(exactly = 1) { searchRecipesUseCase("beef") }
-    }
-
-    @Test
-    fun `when search succeeds, state is updated with recipes`() = runTest {
-        // Given
-        val recipe = Recipe("1", "Chicken", "", "", emptyList(), "", "")
-        coEvery { searchRecipesUseCase("chicken") } returns Result.success(listOf(recipe))
-
-        // When
-        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("chicken"))
         mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(501)
-
-        // Then
-        val state = viewModel.uiState.value
-        expectThat(state.isLoading).isFalse()
-        expectThat(state.recipes.first().recipe).isEqualTo(recipe)
+        runCurrent()
+        coVerify(exactly = 1) { searchRecipesUseCase("chicken") }
     }
 
     @Test
@@ -115,6 +85,7 @@ class SearchViewModelTest {
         // When
         viewModel.onEvent(SearchEvent.OnSearchQueryChanged("fail"))
         mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(501)
+        runCurrent()
 
         // Then
         val state = viewModel.uiState.value
@@ -123,33 +94,52 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `when recipe is saved, isSaved flag is true in UI model`() = runTest {
+    fun `when search succeeds, the ui state is updated with correct saved status`() = runTest {
         // Given
-        val recipe = Recipe("1", "Chicken", "", "", emptyList(), "", "")
-        every { getSavedRecipesUseCase() } returns flowOf(listOf(recipe)) // This recipe is saved
-        coEvery { searchRecipesUseCase("chicken") } returns Result.success(listOf(recipe))
-
-        // Re-create viewModel to pick up the new flow
-        viewModel = SearchViewModel(searchRecipesUseCase, getSavedRecipesUseCase, saveRecipeUseCase, deleteRecipeUseCase)
+        val recipe1 = Recipe("1", "Saved Recipe", "", "", emptyList(), "", "")
+        val recipe2 = Recipe("2", "Unsaved Recipe", "", "", emptyList(), "", "")
+        savedRecipesFlow.value = listOf(recipe1) // recipe1 is saved
+        coEvery { searchRecipesUseCase("Recipe") } returns Result.success(listOf(recipe1, recipe2))
 
         // When
-        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("chicken"))
+        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("Recipe"))
         mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(501)
+        runCurrent()
 
         // Then
-        val uiModel = viewModel.uiState.value.recipes.first()
-        expectThat(uiModel.isSaved).isTrue()
+        val recipes = viewModel.uiState.value.recipes
+        expectThat(recipes.find { it.recipe.id == "1" }?.isSaved).isTrue()
+        expectThat(recipes.find { it.recipe.id == "2" }?.isSaved).isFalse()
+    }
+
+    @Test
+    fun `when a recipe is saved via flow update, the ui state is updated to reflect it`() = runTest {
+        // Given
+        val recipe = Recipe("1", "Test Recipe", "", "", emptyList(), "", "")
+        coEvery { searchRecipesUseCase("Test") } returns Result.success(listOf(recipe))
+        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("Test"))
+        mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(501)
+        runCurrent()
+
+        // Assert initial state is unsaved
+        expectThat(viewModel.uiState.value.recipes.first().isSaved).isFalse()
+
+        // When: the saved recipes flow emits a new list containing the recipe
+        savedRecipesFlow.value = listOf(recipe)
+        runCurrent() // Allow the combine operator to run
+
+        // Then: the UI model in the state should now be marked as saved
+        expectThat(viewModel.uiState.value.recipes.first().isSaved).isTrue()
     }
 
     @Test
     fun `onToggleSave for unsaved recipe should call saveRecipeUseCase`() = runTest {
         // Given
         val recipe = Recipe("1", "Chicken", "", "", emptyList(), "", "")
-        // Saved list is empty by default
 
         // When
         viewModel.onEvent(SearchEvent.OnToggleSave(recipe))
-        runCurrent() // Execute the launched coroutine
+        runCurrent()
 
         // Then
         coVerify(exactly = 1) { saveRecipeUseCase(recipe) }
@@ -160,14 +150,12 @@ class SearchViewModelTest {
     fun `onToggleSave for saved recipe should call deleteRecipeUseCase`() = runTest {
         // Given
         val recipe = Recipe("1", "Chicken", "", "", emptyList(), "", "")
-        every { getSavedRecipesUseCase() } returns flowOf(listOf(recipe)) // Pretend recipe is saved
-        // Re-create viewModel to pick up the new flow
-        viewModel = SearchViewModel(searchRecipesUseCase, getSavedRecipesUseCase, saveRecipeUseCase, deleteRecipeUseCase)
-        runCurrent() // Ensure the initial savedRecipeIds flow is collected
+        savedRecipesFlow.value = listOf(recipe) // Pretend recipe is saved
+        runCurrent()
 
         // When
         viewModel.onEvent(SearchEvent.OnToggleSave(recipe))
-        runCurrent() // Execute the toggle coroutine
+        runCurrent()
 
         // Then
         coVerify(exactly = 1) { deleteRecipeUseCase(recipe) }

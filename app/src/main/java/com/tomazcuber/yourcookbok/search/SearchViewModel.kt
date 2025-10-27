@@ -7,8 +7,8 @@ import com.tomazcuber.yourcookbok.domain.usecase.DeleteRecipeUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.GetSavedRecipesUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.SaveRecipeUseCase
 import com.tomazcuber.yourcookbok.search.screen.RecipeUiModel
-import com.tomazcuber.yourcookbok.search.screen.SearchUiState
 import com.tomazcuber.yourcookbok.search.screen.SearchEvent
+import com.tomazcuber.yourcookbok.search.screen.SearchUiState
 import com.tomazcuber.yourcookbok.search.usecase.SearchRecipesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,10 +16,9 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -40,27 +39,21 @@ class SearchViewModel @Inject constructor(
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     private val savedRecipeIds = MutableStateFlow<Set<String>>(emptySet())
+    private val searchResults = MutableStateFlow<List<Recipe>>(emptyList())
 
     init {
         observeSavedRecipes()
         observeSearchQuery()
+        observeCombinedState()
     }
 
     fun onEvent(event: SearchEvent) {
         when (event) {
             is SearchEvent.OnSearchQueryChanged -> onSearchQueryChanged(event.query)
-            is SearchEvent.OnToggleSave -> onToggleFavorite(event.recipe)
+            is SearchEvent.OnToggleSave -> onToggleSave(event.recipe)
             is SearchEvent.OnUserMessageShown -> onUserMessageShown()
             is SearchEvent.OnRecipeClick -> { /* Navigation handled by the UI */ }
-            is SearchEvent.OnSearchSubmit -> triggerSearch()
-        }
-    }
-
-    private fun triggerSearch() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            val result = searchRecipesUseCase(uiState.value.searchQuery)
-            handleSearchResult(result)
+            is SearchEvent.OnSearchSubmit -> triggerSearch(uiState.value.searchQuery)
         }
     }
 
@@ -68,7 +61,7 @@ class SearchViewModel @Inject constructor(
         _uiState.update { it.copy(searchQuery = query) }
     }
 
-    private fun onToggleFavorite(recipe: Recipe) {
+    private fun onToggleSave(recipe: Recipe) {
         viewModelScope.launch {
             if (savedRecipeIds.value.contains(recipe.id)) {
                 deleteRecipeUseCase(recipe)
@@ -89,40 +82,44 @@ class SearchViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeSearchQuery() {
         _uiState
             .map { it.searchQuery }
             .distinctUntilChanged()
             .debounce(500L)
-            .onEach { 
+            .onEach { query ->
                 _uiState.update { it.copy(isLoading = true) }
-            }
-            .flatMapLatest { query ->
-                flow { emit(searchRecipesUseCase(query)) }
-            }
-            .onEach { result ->
-                handleSearchResult(result)
+                triggerSearch(query)
             }
             .launchIn(viewModelScope)
     }
 
-    private fun handleSearchResult(result: Result<List<Recipe>>) {
-        result.fold(
-            onSuccess = { recipes ->
-                val uiModels = recipes.map { recipe ->
-                    RecipeUiModel(recipe, savedRecipeIds.value.contains(recipe.id))
+    private fun triggerSearch(query: String) {
+        viewModelScope.launch {
+            searchRecipesUseCase(query)
+                .onSuccess { recipes ->
+                    searchResults.value = recipes
+                    _uiState.update { it.copy(isLoading = false) }
                 }
-                _uiState.update { it.copy(isLoading = false, recipes = uiModels) }
-            },
-            onFailure = { exception ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        userMessage = exception.message ?: "An unknown error occurred"
-                    )
+                .onFailure { exception ->
+                    searchResults.value = emptyList()
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            userMessage = exception.message ?: "An unknown error occurred"
+                        )
+                    }
                 }
+        }
+    }
+
+    private fun observeCombinedState() {
+        searchResults.combine(savedRecipeIds) { recipes, savedIds ->
+            recipes.map { recipe ->
+                RecipeUiModel(recipe, savedIds.contains(recipe.id))
             }
-        )
+        }.onEach { uiModels ->
+            _uiState.update { it.copy(recipes = uiModels) }
+        }.launchIn(viewModelScope)
     }
 }
