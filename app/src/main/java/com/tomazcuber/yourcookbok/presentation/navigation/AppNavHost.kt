@@ -15,13 +15,13 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = SearchScreen,
+        startDestination = AppDestination.Search,
         modifier = modifier
     ) {
-        composable<SearchScreen> {
+        composable<AppDestination.Search> {
             SearchRoute()
         }
-        composable<SavedScreen> {
+        composable<AppDestination.Saved> {
             // Placeholder for the Saved Recipes Screen
             Text("Saved Recipes Screen")
         }
