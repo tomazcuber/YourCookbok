@@ -1,3 +1,5 @@
+package com.tomazcuber.yourcookbok.search.screen
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +18,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -41,9 +42,6 @@ import com.tomazcuber.yourcookbok.domain.model.Recipe
 import com.tomazcuber.yourcookbok.presentation.components.RecipeItemCard
 import com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme
 import com.tomazcuber.yourcookbok.search.SearchViewModel
-import com.tomazcuber.yourcookbok.search.screen.RecipeUiModel
-import com.tomazcuber.yourcookbok.search.screen.SearchEvent
-import com.tomazcuber.yourcookbok.search.screen.SearchUiState
 
 @Composable
 fun SearchRoute(

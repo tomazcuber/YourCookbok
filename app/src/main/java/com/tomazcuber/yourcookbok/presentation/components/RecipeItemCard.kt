@@ -26,6 +26,8 @@ import coil.compose.AsyncImage
 import com.tomazcuber.yourcookbok.domain.model.Recipe
 import com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme
 
+import androidx.compose.ui.platform.testTag
+
 @Composable
 fun RecipeItemCard(
     recipe: Recipe,
@@ -37,8 +39,7 @@ fun RecipeItemCard(
     Card(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -68,7 +69,8 @@ fun RecipeItemCard(
             )
 
             IconButton(
-                onClick = onFavoriteClick
+                onClick = onFavoriteClick,
+                modifier = Modifier.testTag("favorite_button_${recipe.id}_$isFavorite")
             ) {
                 Icon(
                     imageVector = if (isFavorite) {
