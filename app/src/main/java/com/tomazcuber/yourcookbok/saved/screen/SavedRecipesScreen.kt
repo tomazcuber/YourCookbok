@@ -27,16 +27,14 @@ fun SavedRecipesRoute(
 
     SavedRecipesScreen(
         recipes = savedRecipes,
-        onRecipeClick = { /* TODO: Handle recipe click */ },
-        onFavoriteClick = { /* TODO: Handle favorite click */ }
+        onEvent = viewModel::onEvent
     )
 }
 
 @Composable
 fun SavedRecipesScreen(
     recipes: List<Recipe>,
-    onRecipeClick: (Recipe) -> Unit,
-    onFavoriteClick: (Recipe) -> Unit
+    onEvent: (SavedRecipesEvent) -> Unit
 ) {
     if (recipes.isEmpty()) {
         Box(
@@ -56,9 +54,9 @@ fun SavedRecipesScreen(
             items(recipes) { recipe ->
                 RecipeItemCard(
                     recipe = recipe,
-                    isFavorite = true,
-                    onClick = { onRecipeClick(recipe) },
-                    onFavoriteClick = { onFavoriteClick(recipe) }
+                    isFavorite = true, // All recipes on this screen are favorites
+                    onClick = { onEvent(SavedRecipesEvent.OnRecipeClick(recipe)) },
+                    onFavoriteClick = { onEvent(SavedRecipesEvent.OnUnsaveClick(recipe)) }
                 )
             }
         }
@@ -90,8 +88,7 @@ fun SavedRecipesScreenEmptyPreview() {
     com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme {
         SavedRecipesScreen(
             recipes = emptyList(),
-            onRecipeClick = {},
-            onFavoriteClick = {}
+            onEvent = {}
         )
     }
 }
@@ -102,8 +99,7 @@ fun SavedRecipesScreenWithContentPreview() {
     com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme {
         SavedRecipesScreen(
             recipes = getPreviewRecipes(),
-            onRecipeClick = {},
-            onFavoriteClick = {}
+            onEvent = {}
         )
     }
 }
