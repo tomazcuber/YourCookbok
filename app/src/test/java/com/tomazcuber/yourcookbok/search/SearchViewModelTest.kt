@@ -4,6 +4,7 @@ import com.tomazcuber.yourcookbok.domain.model.Recipe
 import com.tomazcuber.yourcookbok.domain.usecase.DeleteRecipeUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.GetSavedRecipesUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.SaveRecipeUseCase
+import com.tomazcuber.yourcookbok.search.screen.SearchEvent
 import com.tomazcuber.yourcookbok.search.usecase.SearchRecipesUseCase
 import com.tomazcuber.yourcookbok.util.MainCoroutineRule
 import io.mockk.coEvery
@@ -65,7 +66,7 @@ class SearchViewModelTest {
     @Test
     fun `when search query changes, state is updated and search is triggered after debounce`() = runTest {
         // When
-        viewModel.onSearchQueryChanged("chicken")
+        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("chicken"))
 
         // Then
         expectThat(viewModel.uiState.value.searchQuery).isEqualTo("chicken")
@@ -78,13 +79,26 @@ class SearchViewModelTest {
     }
 
     @Test
+    fun `when search submitted, search is triggered immediately`() = runTest {
+        // Given
+        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("beef"))
+
+        // When
+        viewModel.onEvent(SearchEvent.OnSearchSubmit)
+        runCurrent()
+
+        // Then
+        coVerify(exactly = 1) { searchRecipesUseCase("beef") }
+    }
+
+    @Test
     fun `when search succeeds, state is updated with recipes`() = runTest {
         // Given
         val recipe = Recipe("1", "Chicken", "", "", emptyList(), "", "")
         coEvery { searchRecipesUseCase("chicken") } returns Result.success(listOf(recipe))
 
         // When
-        viewModel.onSearchQueryChanged("chicken")
+        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("chicken"))
         mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(501)
 
         // Then
@@ -99,7 +113,7 @@ class SearchViewModelTest {
         coEvery { searchRecipesUseCase("fail") } returns Result.failure(IOException("Network Error"))
 
         // When
-        viewModel.onSearchQueryChanged("fail")
+        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("fail"))
         mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(501)
 
         // Then
@@ -119,7 +133,7 @@ class SearchViewModelTest {
         viewModel = SearchViewModel(searchRecipesUseCase, getSavedRecipesUseCase, saveRecipeUseCase, deleteRecipeUseCase)
 
         // When
-        viewModel.onSearchQueryChanged("chicken")
+        viewModel.onEvent(SearchEvent.OnSearchQueryChanged("chicken"))
         mainCoroutineRule.testDispatcher.scheduler.advanceTimeBy(501)
 
         // Then
@@ -134,7 +148,7 @@ class SearchViewModelTest {
         // Saved list is empty by default
 
         // When
-        viewModel.onToggleSave(recipe)
+        viewModel.onEvent(SearchEvent.OnToggleSave(recipe))
         runCurrent() // Execute the launched coroutine
 
         // Then
@@ -152,7 +166,7 @@ class SearchViewModelTest {
         runCurrent() // Ensure the initial savedRecipeIds flow is collected
 
         // When
-        viewModel.onToggleSave(recipe)
+        viewModel.onEvent(SearchEvent.OnToggleSave(recipe))
         runCurrent() // Execute the toggle coroutine
 
         // Then

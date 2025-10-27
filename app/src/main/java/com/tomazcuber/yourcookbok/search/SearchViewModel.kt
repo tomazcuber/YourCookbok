@@ -6,6 +6,9 @@ import com.tomazcuber.yourcookbok.domain.model.Recipe
 import com.tomazcuber.yourcookbok.domain.usecase.DeleteRecipeUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.GetSavedRecipesUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.SaveRecipeUseCase
+import com.tomazcuber.yourcookbok.search.screen.RecipeUiModel
+import com.tomazcuber.yourcookbok.search.screen.SearchUiState
+import com.tomazcuber.yourcookbok.search.screen.SearchEvent
 import com.tomazcuber.yourcookbok.search.usecase.SearchRecipesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,9 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchRecipesUseCase: SearchRecipesUseCase,
@@ -45,11 +46,29 @@ class SearchViewModel @Inject constructor(
         observeSearchQuery()
     }
 
-    fun onSearchQueryChanged(query: String) {
+    fun onEvent(event: SearchEvent) {
+        when (event) {
+            is SearchEvent.OnSearchQueryChanged -> onSearchQueryChanged(event.query)
+            is SearchEvent.OnToggleSave -> onToggleFavorite(event.recipe)
+            is SearchEvent.OnUserMessageShown -> onUserMessageShown()
+            is SearchEvent.OnRecipeClick -> { /* Navigation handled by the UI */ }
+            is SearchEvent.OnSearchSubmit -> triggerSearch()
+        }
+    }
+
+    private fun triggerSearch() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val result = searchRecipesUseCase(uiState.value.searchQuery)
+            handleSearchResult(result)
+        }
+    }
+
+    private fun onSearchQueryChanged(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
     }
 
-    fun onToggleSave(recipe: Recipe) {
+    private fun onToggleFavorite(recipe: Recipe) {
         viewModelScope.launch {
             if (savedRecipeIds.value.contains(recipe.id)) {
                 deleteRecipeUseCase(recipe)
@@ -59,7 +78,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun userMessageShown() {
+    private fun onUserMessageShown() {
         _uiState.update { it.copy(userMessage = null) }
     }
 
