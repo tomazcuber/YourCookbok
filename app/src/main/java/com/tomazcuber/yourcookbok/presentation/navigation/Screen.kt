@@ -4,8 +4,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.serialization.Serializable
 
-sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    object Search : Screen("search", "Search", Icons.Default.Search)
-    object Saved : Screen("saved", "Saved", Icons.Default.Favorite)
+interface AppDestination {
+    val route: String
+    val label: String
+    val icon: ImageVector
+}
+
+@Serializable
+object SearchScreen : AppDestination {
+    override val route = "search"
+    override val label = "Search"
+    override val icon = Icons.Default.Search
+}
+
+@Serializable
+object SavedScreen : AppDestination {
+    override val route = "saved"
+    override val label = "Saved"
+    override val icon = Icons.Default.Favorite
 }
