@@ -1,4 +1,4 @@
-package com.tomazcuber.yourcookbok.search
+package com.tomazcuber.yourcookbok.search.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

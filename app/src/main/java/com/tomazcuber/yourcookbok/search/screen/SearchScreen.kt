@@ -41,7 +41,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tomazcuber.yourcookbok.domain.model.Recipe
 import com.tomazcuber.yourcookbok.presentation.components.RecipeItemCard
 import com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme
-import com.tomazcuber.yourcookbok.search.SearchViewModel
+import com.tomazcuber.yourcookbok.search.viewmodel.SearchViewModel
 
 @Composable
 fun SearchRoute(
