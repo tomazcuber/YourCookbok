@@ -13,6 +13,7 @@ import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.mockwebserver.MockWebServer
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Singleton
@@ -44,9 +45,15 @@ object TestDataModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(json: Json): Retrofit {
+    fun provideMockWebServer(): MockWebServer {
+        return MockWebServer()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(json: Json, mockWebServer: MockWebServer): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://localhost:8080/")
+            .baseUrl(mockWebServer.url("/"))
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
