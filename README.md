@@ -1,4 +1,6 @@
 # YourCookbok - Recipe Finder App
+[![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/tomazcuber/YourCookbok/blob/readme/portuguese-version/README.pt-br.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/tomazcuber/YourCookbok/blob/readme/portuguese-version/README.md)
 
 YourCookbok is a modern, offline-first Android application built to showcase a robust, scalable, and testable architecture. It allows users to search for recipes, view their details, and maintain a local collection of their favorites.
 
