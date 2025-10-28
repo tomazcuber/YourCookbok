@@ -1,4 +1,6 @@
 # YourCookbok - App de Busca de Receitas
+[![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/tomazcuber/YourCookbok/blob/readme/portuguese-version/README.pt-br.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/tomazcuber/YourCookbok/blob/readme/portuguese-version/README.md)
 
 O YourCookbok é um aplicativo Android moderno, offline-first, construído para demonstrar uma arquitetura robusta, escalável e testável. Ele permite que os usuários pesquisem receitas, visualizem seus detalhes e mantenham uma coleção local de seus favoritos.
 
@@ -11,21 +13,6 @@ Este projeto foi desenvolvido como uma vitrine para entrevistas técnicas, prior
 - **Favoritos:** Salve e remova receitas para uma lista local de "favoritos" que está disponível offline.
 - **Detalhes da Receita:** Visualize detalhes abrangentes da receita, incluindo ingredientes, medidas e instruções passo a passo.
 - **UI Moderna:** Uma interface de usuário limpa, responsiva e intuitiva, construída inteiramente com Jetpack Compose e Material 3.
-
-## Screenshots
-
-| Modo Claro | Modo Escuro |
-| :---: | :---: |
-| **Busca (Vazia)** | **Busca (Vazia)** |
-| ![Tela de Busca Clara](screenshots/search-empty-light.jpg) | ![Tela de Busca Escura](screenshots/search-empty-dark.jpg) |
-| **Busca (Resultados)** | **Busca (Resultados)** |
-| ![Resultados de Busca Claro](screenshots/search-results-light.jpg) | ![Resultados de Busca Escuro](screenshots/search-results-dark.jpg) |
-| **Salvos (Vazio)** | **Salvos (Vazio)** |
-| ![Tela de Salvos Clara](screenshots/saved-empty-light.jpg) | ![Tela de Salvos Escura](screenshots/saved-empty-dark.jpg) |
-| **Salvos (Resultados)** | **Salvos (Resultados)** |
-| ![Tela de Salvos com Resultados Clara](screenshots/saved-results-light.jpg) | ![Tela de Salvos com Resultados Escura](screenshots/saved-results-dark.jpg) |
-| **Detalhes da Receita** | **Detalhes da Receita** |
-| ![Tela de Detalhes Clara](screenshots/recipe-detail-light.jpg) | ![Tela de Detalhes Escura](screenshots/recipe-detail-dark.jpg) |
 
 ## Tecnologias Utilizadas
 
