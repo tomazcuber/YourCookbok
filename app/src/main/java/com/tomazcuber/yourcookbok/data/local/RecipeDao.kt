@@ -22,6 +22,9 @@ interface RecipeDao {
     @Query("SELECT * FROM saved_recipes WHERE name LIKE '%' || :query || '%' COLLATE NOCASE")
     suspend fun searchSavedRecipes(query: String): List<RecipeEntity>
 
+    @Query("SELECT * FROM saved_recipes WHERE id = :id")
+    suspend fun findById(id: String): RecipeEntity?
+
     @Delete
     suspend fun delete(recipe: RecipeEntity)
 }

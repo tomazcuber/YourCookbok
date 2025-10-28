@@ -164,4 +164,32 @@ class RecipeDaoTest {
         expectThat(results).contains(recipe1, recipe2)
         expectThat(results).doesNotContain(recipe3)
     }
+
+    @Test
+    fun findById_withExistingId_returnsCorrectRecipe() = runTest {
+        // Given
+        val recipe1 = RecipeEntity("1", "Chicken Soup", "", "", emptyList(), "", "")
+        val recipe2 = RecipeEntity("2", "Beef Stew", "", "", emptyList(), "", "")
+        dao.saveRecipe(recipe1)
+        dao.saveRecipe(recipe2)
+
+        // When
+        val result = dao.findById("1")
+
+        // Then
+        expectThat(result).isEqualTo(recipe1)
+    }
+
+    @Test
+    fun findById_withNonExistingId_returnsNull() = runTest {
+        // Given
+        val recipe1 = RecipeEntity("1", "Chicken Soup", "", "", emptyList(), "", "")
+        dao.saveRecipe(recipe1)
+
+        // When
+        val result = dao.findById("2")
+
+        // Then
+        expectThat(result).isEqualTo(null)
+    }
 }
