@@ -4,6 +4,8 @@ import com.tomazcuber.yourcookbok.domain.model.Recipe
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
+    suspend fun getRecipeDetails(id: String): Result<Recipe>
+
     suspend fun searchRecipes(query: String): Result<List<Recipe>>
 
     suspend fun saveRecipe(recipe: Recipe): Result<Unit>
