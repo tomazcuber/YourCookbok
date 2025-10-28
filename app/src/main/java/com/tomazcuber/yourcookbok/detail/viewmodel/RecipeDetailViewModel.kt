@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.tomazcuber.yourcookbok.detail.screen.RecipeDetailEvent
 import com.tomazcuber.yourcookbok.detail.screen.RecipeDetailUiState
 import com.tomazcuber.yourcookbok.detail.usecase.GetRecipeDetailsUseCase
+import com.tomazcuber.yourcookbok.domain.model.Recipe
 import com.tomazcuber.yourcookbok.domain.model.RecipeError
 import com.tomazcuber.yourcookbok.domain.usecase.DeleteRecipeUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.IsRecipeSavedUseCase
@@ -65,7 +66,13 @@ class RecipeDetailViewModel @Inject constructor(
         viewModelScope.launch {
             getRecipeDetailsUseCase(recipeId)
                 .onSuccess { recipe ->
-                    _uiState.update { it.copy(recipe = recipe, isLoading = false) }
+                    _uiState.update {
+                        it.copy(
+                            recipe = recipe,
+                            isLoading = false,
+                            numberedInstructions = splitRecipeInstructionsIntoNumberedList(recipe.instructions)
+                        )
+                    }
                 }
                 .onFailure { error ->
                     val message = when (error) {
@@ -84,5 +91,12 @@ class RecipeDetailViewModel @Inject constructor(
                 _uiState.update { it.copy(isSaved = isSaved) }
             }
             .launchIn(viewModelScope)
+    }
+
+    private fun splitRecipeInstructionsIntoNumberedList(recipeInstructions: String) : List<String> {
+        return recipeInstructions
+            .split("\r\n")
+            .filter { it.isNotBlank() }
+            .mapIndexed { index, instruction -> "${index + 1}. $instruction" }
     }
 }
