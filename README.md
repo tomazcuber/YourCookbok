@@ -12,21 +12,6 @@ This project was developed as a technical interview showcase, prioritizing archi
 - **Recipe Details:** View comprehensive recipe details, including ingredients, measurements, and step-by-step instructions.
 - **Modern UI:** A clean, responsive, and intuitive user interface built entirely with Jetpack Compose and Material 3.
 
-## Screenshots
-
-| Light Mode | Dark Mode |
-| :---: | :---: |
-| **Search (Empty)** | **Search (Empty)** |
-| ![Search Screen Light](screenshots/search-empty-light.jpg) | ![Search Screen Dark](screenshots/search-empty-dark.jpg) |
-| **Search (Results)** | **Search (Results)** |
-| ![Search Results Light](screenshots/search-results-light.jpg) | ![Search Results Dark](screenshots/search-results-dark.jpg) |
-| **Saved (Empty)** | **Saved (Empty)** |
-| ![Saved Screen Light](screenshots/saved-empty-light.jpg) | ![Saved Screen Dark](screenshots/saved-empty-dark.jpg) |
-| **Saved (Results)** | **Saved (Results)** |
-| ![Saved Screen Light](screenshots/saved-results-light.jpg) | ![Saved Screen Dark](screenshots/saved-results-dark.jpg) |
-| **Recipe Detail** | **Recipe Detail** |
-| ![Detail Screen Light](screenshots/recipe-detail-light.jpg) | ![Detail Screen Dark](screenshots/recipe-detail-dark.jpg) |
-
 ## Technology Stack
 
 This project leverages a modern, industry-standard technology stack:
