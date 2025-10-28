@@ -3,6 +3,7 @@ package com.tomazcuber.yourcookbok.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tomazcuber.yourcookbok.domain.model.Recipe
+import com.tomazcuber.yourcookbok.domain.model.RecipeError
 import com.tomazcuber.yourcookbok.domain.usecase.DeleteRecipeUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.GetSavedRecipesUseCase
 import com.tomazcuber.yourcookbok.domain.usecase.SaveRecipeUseCase
@@ -101,12 +102,16 @@ class SearchViewModel @Inject constructor(
                     searchResults.value = recipes
                     _uiState.update { it.copy(isLoading = false) }
                 }
-                .onFailure { exception ->
+                .onFailure { error ->
                     searchResults.value = emptyList()
+                    val message = when (error) {
+                        is RecipeError.NetworkError -> "Please check your network connection."
+                        else -> "An unknown error occurred."
+                    }
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            userMessage = exception.message ?: "An unknown error occurred"
+                            userMessage = message
                         )
                     }
                 }
