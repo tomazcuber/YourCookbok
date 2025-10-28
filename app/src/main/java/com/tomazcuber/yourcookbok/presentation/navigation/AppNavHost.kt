@@ -1,11 +1,11 @@
 package com.tomazcuber.yourcookbok.presentation.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.tomazcuber.yourcookbok.detail.screen.RecipeDetailRoute
 import com.tomazcuber.yourcookbok.saved.screen.SavedRecipesRoute
 import com.tomazcuber.yourcookbok.search.screen.SearchRoute
 
@@ -20,10 +20,25 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable<AppDestination.Search> {
-            SearchRoute()
+            SearchRoute(
+                onNavigateToDetail = { recipeId ->
+                    navController.navigate(AppDestination.RecipeDetail(recipeId))
+                }
+            )
         }
+
         composable<AppDestination.Saved> {
-            SavedRecipesRoute()
+            SavedRecipesRoute(
+                onNavigateToDetail = { recipeId ->
+                    navController.navigate(AppDestination.RecipeDetail(recipeId))
+                }
+            )
+        }
+
+        composable<AppDestination.RecipeDetail> {
+            RecipeDetailRoute(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }

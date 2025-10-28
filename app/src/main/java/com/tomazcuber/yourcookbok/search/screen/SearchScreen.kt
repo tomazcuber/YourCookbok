@@ -45,13 +45,20 @@ import com.tomazcuber.yourcookbok.search.viewmodel.SearchViewModel
 
 @Composable
 fun SearchRoute(
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel(),
+    onNavigateToDetail: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     SearchScreen(
         state = uiState,
-        onEvent = viewModel::onEvent
+        onEvent = { event ->
+            if (event is SearchEvent.OnRecipeClick) {
+                onNavigateToDetail(event.recipe.id)
+            } else {
+                viewModel.onEvent(event)
+            }
+        }
     )
 }
 

@@ -21,13 +21,20 @@ import com.tomazcuber.yourcookbok.saved.viewmodel.SavedRecipesViewModel
 
 @Composable
 fun SavedRecipesRoute(
-    viewModel: SavedRecipesViewModel = hiltViewModel()
+    viewModel: SavedRecipesViewModel = hiltViewModel(),
+    onNavigateToDetail: (String) -> Unit
 ) {
     val savedRecipes by viewModel.savedRecipes.collectAsState()
 
     SavedRecipesScreen(
         recipes = savedRecipes,
-        onEvent = viewModel::onEvent
+        onEvent = { event ->
+            if (event is SavedRecipesEvent.OnRecipeClick) {
+                onNavigateToDetail(event.recipe.id)
+            } else {
+                viewModel.onEvent(event)
+            }
+        }
     )
 }
 

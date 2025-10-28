@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tomazcuber.yourcookbok.presentation.navigation.AppBottomNavigationBar
 import com.tomazcuber.yourcookbok.presentation.navigation.AppNavHost
+import com.tomazcuber.yourcookbok.presentation.navigation.BOTTOM_BAR_DESTINATIONS
 import com.tomazcuber.yourcookbok.presentation.theme.YourCookbokTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -30,9 +33,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val isBottomBarVisible = BOTTOM_BAR_DESTINATIONS.any {
+        it::class.qualifiedName == currentDestination?.route
+    }
 
     Scaffold(
-        bottomBar = { AppBottomNavigationBar(navController = navController) }
+        bottomBar = {
+            if (isBottomBarVisible) {
+                AppBottomNavigationBar(navController = navController)
+            }
+        }
     ) { innerPadding ->
         AppNavHost(
             navController = navController,
@@ -49,7 +62,6 @@ fun MainScreenPreview() {
         Scaffold(
             bottomBar = { AppBottomNavigationBar(navController = navController) }
         ) { innerPadding ->
-            // Preview placeholder
             Text("Screen Content", modifier = Modifier.padding(innerPadding))
         }
     }
