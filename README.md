@@ -14,6 +14,8 @@ This project was developed as a technical interview showcase, prioritizing archi
 
 ## Screenshots
 
+![Search Screen Light](screenshots/search-empty-light.jpg)
+
 | Light Mode | Dark Mode |
 | :---: | :---: |
 | **Search (Empty)** | **Search (Empty)** |
