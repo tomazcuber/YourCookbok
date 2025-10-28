@@ -25,7 +25,7 @@ This project was developed as a technical interview showcase, prioritizing archi
 | **Saved (Results)** | **Saved (Results)** |
 | ![Saved Screen Light](screenshots/saved-results-light.jpg) | ![Saved Screen Dark](screenshots/saved-results-dark.jpg) |
 | **Recipe Detail** | **Recipe Detail** |
-| ![Detail Screen Light](screenshots/recipe-detail-light.jpg) | ![Detail Screen Dark](screenshots/recipe-detail-dark.jpg) |
+| ![Detail Screen Light](screenshots/recipe-detail-light.jpg) | ![Detail Screen Dark](screenshots/recipe-detail-dark2.jpg) |
 
 ## Technology Stack
 
