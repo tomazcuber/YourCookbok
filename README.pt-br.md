@@ -31,7 +31,7 @@ Este projeto utiliza uma pilha de tecnologias moderna e padrão da indústria:
 
 ## Destaques e Decisões Arquiteturais
 
-A arquitetura desta aplicação foi projetada para ser limpa, modular e altamente defensável. As principais decisões estão documentadas no arquivo `ADR.md`, com os destaques mais importantes resumidos abaixo.
+A arquitetura desta aplicação foi projetada para ser limpa, modular e altamente defensável. Os destaques de arquitetura mais importantes são:
 
 ### 1. Clean Architecture com MVVM
 
