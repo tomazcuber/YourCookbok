@@ -31,7 +31,7 @@ This project leverages a modern, industry-standard technology stack:
 
 ## Architectural Highlights & Decisions
 
-The architecture of this application was designed to be clean, modular, and highly defensible. The key decisions are documented in the `ADR.md` file, with the most important highlights summarized below.
+The architecture of this application was designed to be clean, modular, and highly defensible. The most important highlights summarized below.
 
 ### 1. Clean Architecture with MVVM
 
